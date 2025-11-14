@@ -1,0 +1,33 @@
+# Python / FastAPI
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.venv/
+ENV/
+*.db
+*.sqlite3
+*.sqlite
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Node / Vite
+node_modules/
+dist/
+build/
+.vite/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

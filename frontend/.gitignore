@@ -1,24 +1,82 @@
-# Logs
-logs
+# ============================================
+# FASTAPI / PYTHON
+# ============================================
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+ENV/
+
+# Archivos de configuración sensibles
+.env
+.env.*
+*.env
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de logs
 *.log
+
+# Directorios de build o temporales
+dist/
+build/
+temp/
+
+# Archivos generados por herramientas
+.coverage
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+.cache/
+
+# Base de datos local
+*.db
+*.sqlite3
+
+
+# ============================================
+# NODE / VITE
+# ============================================
+
+# Dependencias
+node_modules/
+
+# Producción (build)
+dist/
+build/
+
+# Archivos temporales
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
+.vite/
 
-node_modules
-dist
-dist-ssr
+# Archivos locales
+.DS_Store
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+
+# ============================================
+# EDITORES
+# ============================================
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# PyCharm
+.idea/
+
+# ============================================
+# SISTEMA
+# ============================================
+
+# Archivos del sistema
+Thumbs.db
