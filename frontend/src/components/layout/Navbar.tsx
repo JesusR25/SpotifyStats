@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Music, BarChart3, User, LogOut } from 'lucide-react';
+import { Music, BarChart3, LogOut } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();

@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { spotifyService } from '../services/api';
 import { Card } from '../components/ui/Card';
 import { User, Music, TrendingUp, Users } from 'lucide-react';
-import type { UserInfo } from '../types/spotify';
 
 export const Dashboard = () => {
   const { user, refreshUser } = useAuth();

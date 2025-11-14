@@ -4,7 +4,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
 import { TopArtists } from './pages/TopArtists';
-import { TopTracks } from './pages/TopTracks';
+import { TopTracksPage } from './pages/TopTracks';
 import { Success } from './pages/Success';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 
@@ -46,7 +46,7 @@ function AppRoutes() {
         path="/top-tracks"
         element={
           <ProtectedRoute>
-            <TopTracks />
+            <TopTracksPage />
           </ProtectedRoute>
         }
       />

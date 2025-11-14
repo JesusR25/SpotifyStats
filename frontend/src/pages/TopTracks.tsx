@@ -10,7 +10,7 @@ import type { TopTracks, Track } from '../types/spotify';
 
 type TimeRange = 'short_term' | 'medium_term' | 'long_term';
 
-export const TopTracks = () => {
+export const TopTracksPage = () => {
   const [tracks, setTracks] = useState<TopTracks | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<TimeRange>('medium_term');
@@ -116,7 +116,7 @@ export const TopTracks = () => {
                   }}
                 />
                 <Bar dataKey="popularity" radius={[8, 8, 0, 0]}>
-                  {chartData.map((entry, index) => (
+                  {chartData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                   ))}
                 </Bar>
