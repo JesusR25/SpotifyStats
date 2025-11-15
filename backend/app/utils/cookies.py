@@ -10,6 +10,9 @@ def set_tokens_in_cookies(response: Response, tokens: dict):
     access_token = tokens.get('access_token')
     expires_in = tokens.get('expires_in')
     refresh_token = tokens.get('refresh_token')
+    print(f"access_token: {access_token}")
+    print(f"expires_in: {expires_in}")
+    print(f"refresh_token: {refresh_token}")
 
     response.set_cookie(key='access_token', value=access_token, httponly=True, secure=True, samesite='none', max_age=expires_in)
     if refresh_token:
