@@ -1,6 +1,6 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends
-from routers import auth, spotify
+from app.routers import auth, spotify
 
 
 app = FastAPI()
