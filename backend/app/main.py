@@ -7,7 +7,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://spotify-stats-three-kappa.vercel.app/"],  # en producción deberías poner tu dominio
+    allow_origins=["https://spotify-stats-three-kappa.vercel.app"],  # en producción deberías poner tu dominio
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
