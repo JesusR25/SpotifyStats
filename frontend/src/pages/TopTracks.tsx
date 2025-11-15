@@ -4,32 +4,44 @@ import { spotifyService } from '../services/api';
 import { Card } from '../components/ui/Card';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Button } from '../components/ui/Button';
-import { Music, Clock, TrendingUp, Play } from 'lucide-react';
+import { Music, Clock, TrendingUp, Play, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { TopTracks, Track } from '../types/spotify';
 
 type TimeRange = 'short_term' | 'medium_term' | 'long_term';
+
+const ITEMS_PER_PAGE = 20;
 
 export const TopTracksPage = () => {
   const [tracks, setTracks] = useState<TopTracks | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<TimeRange>('medium_term');
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
-    fetchTracks();
+    setCurrentPage(0); // Reset a la primera página cuando cambia el timeRange
+    fetchTracks(0);
   }, [timeRange]);
 
-  const fetchTracks = async () => {
+  const fetchTracks = async (offset: number = 0) => {
     try {
       setLoading(true);
-      const data = await spotifyService.getTopTracks(timeRange, 50);
+      const data = await spotifyService.getTopTracks(timeRange, ITEMS_PER_PAGE, offset);
       setTracks(data);
     } catch (error) {
       console.error('Error fetching tracks:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const offset = newPage * ITEMS_PER_PAGE;
+    setCurrentPage(newPage);
+    fetchTracks(offset);
+    // Scroll al inicio de la página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const formatDuration = (ms: number) => {
@@ -48,11 +60,11 @@ export const TopTracksPage = () => {
 
   if (!tracks) return null;
 
-  // Prepare data for chart (top 10)
-  const chartData = tracks.tracks.slice(0, 10).map((track, index) => ({
+  // Prepare data for chart (top 10 de la página actual)
+  const chartData = tracks.tracks.slice(0, Math.min(10, tracks.tracks.length)).map((track, index) => ({
     name: track.name.length > 15 ? track.name.substring(0, 15) + '...' : track.name,
     popularity: track.popularity,
-    index: index + 1,
+    index: tracks.offset + index + 1,
   }));
 
   const colors = ['#1DB954', '#1ed760', '#1DB954', '#1ed760', '#1DB954', '#1ed760', '#1DB954', '#1ed760', '#1DB954', '#1ed760'];
@@ -71,20 +83,24 @@ export const TopTracksPage = () => {
                 <Music className="w-10 h-10 text-spotify-green" />
                 <span>Top Canciones</span>
               </h1>
-              <p className="text-gray-400">Total: {tracks.total} canciones</p>
+              <p className="text-gray-400">
+                Total: {tracks.total} canciones • Mostrando {tracks.tracks.length} de {tracks.total}
+              </p>
             </div>
 
-            <div className="flex space-x-2 mt-4 md:mt-0">
-              {(Object.keys(timeRangeLabels) as TimeRange[]).map((range) => (
-                <Button
-                  key={range}
-                  onClick={() => setTimeRange(range)}
-                  variant={timeRange === range ? 'primary' : 'outline'}
-                  size="sm"
-                >
-                  {timeRangeLabels[range]}
-                </Button>
-              ))}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              <div className="flex space-x-2">
+                {(Object.keys(timeRangeLabels) as TimeRange[]).map((range) => (
+                  <Button
+                    key={range}
+                    onClick={() => setTimeRange(range)}
+                    variant={timeRange === range ? 'primary' : 'outline'}
+                    size="sm"
+                  >
+                    {timeRangeLabels[range]}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         </motion.div>
@@ -159,7 +175,7 @@ export const TopTracksPage = () => {
                       animate={{ scale: 1 }}
                       transition={{ delay: index * 0.03 + 0.3 }}
                     >
-                      #{index + 1}
+                      #{tracks.offset + index + 1}
                     </motion.div>
                     {track.explicit && (
                       <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
@@ -201,6 +217,78 @@ export const TopTracksPage = () => {
             ))}
           </AnimatePresence>
         </div>
+
+        {/* Paginación */}
+        {tracks && tracks.total > ITEMS_PER_PAGE && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4"
+          >
+            <div className="text-gray-400 text-sm">
+              Página {currentPage + 1} de {Math.ceil(tracks.total / ITEMS_PER_PAGE)}
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 0 || loading}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-1"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Anterior</span>
+              </Button>
+              
+              <div className="flex items-center space-x-1">
+                {(() => {
+                  const totalPages = Math.ceil(tracks.total / ITEMS_PER_PAGE);
+                  const maxButtons = 5;
+                  const buttonsToShow = Math.min(maxButtons, totalPages);
+                  
+                  let startPage = 0;
+                  if (totalPages > maxButtons) {
+                    if (currentPage < 2) {
+                      startPage = 0;
+                    } else if (currentPage > totalPages - 3) {
+                      startPage = totalPages - maxButtons;
+                    } else {
+                      startPage = currentPage - 2;
+                    }
+                  }
+                  
+                  return Array.from({ length: buttonsToShow }, (_, i) => {
+                    const pageNum = startPage + i;
+                    return (
+                      <Button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        disabled={loading}
+                        variant={currentPage === pageNum ? 'primary' : 'outline'}
+                        size="sm"
+                        className="min-w-[40px]"
+                      >
+                        {pageNum + 1}
+                      </Button>
+                    );
+                  });
+                })()}
+              </div>
+              
+              <Button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= Math.ceil(tracks.total / ITEMS_PER_PAGE) - 1 || loading}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-1"
+              >
+                <span>Siguiente</span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Modal for track details */}
         <AnimatePresence>
