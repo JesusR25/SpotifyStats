@@ -1,24 +1,30 @@
 import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
 import type { UserInfo, TopArtist, TopTracks, ArtistsFollowByUser } from '../types/spotify';
-import { API_BASE_URL } from '../config/api';
 
-// Axios configurado correctamente
 const api = axios.create({
-  baseURL: API_BASE_URL,   // <-- Usa este dominio para todas las peticiones
-  withCredentials: true,   // <-- ENVÍA COOKIES
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// No necesitas la ruta completa aquí
 export const authService = {
   login: () => {
-    window.location.href = `${API_BASE_URL}/api/auth/login`;
+    window.location.href = API_ENDPOINTS.AUTH.LOGIN;
+  },
+
+  callback: async (code: string, state: string): Promise<void> => {
+    const response = await api.get(API_ENDPOINTS.AUTH.CALLBACK, {
+      params: { code, state },
+    });
+    return response.data;
   },
 };
 
-// TODAS las rutas deben ser RELATIVAS
 export const spotifyService = {
   getUserInfo: async (): Promise<UserInfo> => {
-    const response = await api.get<UserInfo>("/api/spotify/me");
+    const response = await api.get<UserInfo>(API_ENDPOINTS.SPOTIFY.ME);
     return response.data;
   },
 
@@ -27,7 +33,7 @@ export const spotifyService = {
     limit: number = 20,
     offset: number = 0
   ): Promise<TopArtist> => {
-    const response = await api.get<TopArtist>("/api/spotify/top-artist-user", {
+    const response = await api.get<TopArtist>(API_ENDPOINTS.SPOTIFY.TOP_ARTISTS, {
       params: { time_range: timeRange, limit, offset },
     });
     return response.data;
@@ -38,7 +44,7 @@ export const spotifyService = {
     limit: number = 20,
     offset: number = 0
   ): Promise<TopTracks> => {
-    const response = await api.get<TopTracks>("/api/spotify/top-tracks-user", {
+    const response = await api.get<TopTracks>(API_ENDPOINTS.SPOTIFY.TOP_TRACKS, {
       params: { time_range: timeRange, limit, offset },
     });
     return response.data;
@@ -48,9 +54,10 @@ export const spotifyService = {
     limit: number = 10,
     after?: string
   ): Promise<ArtistsFollowByUser> => {
-    const response = await api.get<ArtistsFollowByUser>("/api/spotify/artist-follow-user", {
+    const response = await api.get<ArtistsFollowByUser>(API_ENDPOINTS.SPOTIFY.FOLLOWED_ARTISTS, {
       params: { limit, after, type: 'artist' },
     });
     return response.data;
   },
 };
+

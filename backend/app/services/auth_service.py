@@ -1,7 +1,6 @@
 from app.core.config import settings
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse
 from fastapi import HTTPException
-from datetime import datetime, timedelta
 from app.utils.cookies import set_tokens_in_cookies
 import requests
 import base64
@@ -11,7 +10,6 @@ class AuthService():
         self.spotify_client_id = settings.SPOTIFY_CLIENT_ID
         self.spotify_secret = settings.SPOTIFY_CLIENT_SECRET
         self.redirect_uri = settings.SPOTIFY_REDIRECT_URI
-        self.frontend_url = settings.FRONTEND_URL
 
 
 
@@ -35,13 +33,22 @@ class AuthService():
             response = requests.post(url=url, headers=headers, data=data)
             if response.status_code == 200:
                 response_data = response.json()
-                return response_data
+
+                json_response = JSONResponse(
+                    status_code=200,
+                    content={"message": "Autenticación exitosa", "success": True}
+                )
+                set_tokens_in_cookies(response=json_response, tokens=response_data)
+                
+                return json_response
             else:
                 raise HTTPException(status_code=response.status_code, detail="Ocurrio un error al obtener los tokens con Spotify.")
+
+
+
         except Exception as e:
             print(f"Ocurrio un error al tratar de obtener el token despues de la reedirección: {e}")
             raise HTTPException(status_code=500, detail="Ocurrio un error al intentar obtener los tokens de la cuenta de spotify.")
-
 
 
     # Esta función la utilizare para el middlewarwe, cambiare el refresh token por un access token.
