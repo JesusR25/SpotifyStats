@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from app.services.auth_service import AuthService
+from app.utils.cookies import set_tokens_in_cookies
 from urllib.parse import urlencode
 from app.core.config import settings
 import secrets
@@ -32,9 +33,15 @@ async def callback(code: str, state:str):
         if not code or not state:
             raise HTTPException(status_code=500, detail="Lo sentimos, no se encontro el code o state en la URL.")
         auth_service = AuthService()
-        response = auth_service.handle_spotify_callback(code=code, state=state)
-        return response
+        tokens = auth_service.handle_spotify_callback(code=code, state=state)
+        response = RedirectResponse(
+            url=f"{settings.FRONTEND_URL}/success-vinculation",
+            status_code=302
+        )
+        set_tokens_in_cookies(response=response, tokens=tokens)
+        return response 
     except HTTPException:
         raise
     except Exception as e:
         print(f"Ocurrio un error en el callback: {e}")
+        raise HTTPException(status_code=500, detail="Ocurrio un error en el callback.")

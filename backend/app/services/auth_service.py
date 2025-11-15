@@ -35,19 +35,13 @@ class AuthService():
             response = requests.post(url=url, headers=headers, data=data)
             if response.status_code == 200:
                 response_data = response.json()
-
-                response = RedirectResponse(url=f"{settings.FRONTEND_URL}/success-vinculation")
-                set_tokens_in_cookies(response=response, tokens=response_data)
-                
-                return response
+                return response_data
             else:
                 raise HTTPException(status_code=response.status_code, detail="Ocurrio un error al obtener los tokens con Spotify.")
-
-
-
         except Exception as e:
             print(f"Ocurrio un error al tratar de obtener el token despues de la reedirección: {e}")
             raise HTTPException(status_code=500, detail="Ocurrio un error al intentar obtener los tokens de la cuenta de spotify.")
+
 
 
     # Esta función la utilizare para el middlewarwe, cambiare el refresh token por un access token.
