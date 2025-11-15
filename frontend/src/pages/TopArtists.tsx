@@ -4,31 +4,43 @@ import { spotifyService } from '../services/api';
 import { Card } from '../components/ui/Card';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { Button } from '../components/ui/Button';
-import { TrendingUp, Users, Music } from 'lucide-react';
+import { TrendingUp, Users, Music, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { TopArtist, Artist } from '../types/spotify';
 
 type TimeRange = 'short_term' | 'medium_term' | 'long_term';
+
+const ITEMS_PER_PAGE = 20;
 
 export const TopArtists = () => {
   const [artists, setArtists] = useState<TopArtist | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<TimeRange>('medium_term');
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
-    fetchArtists();
+    setCurrentPage(0); // Reset a la primera página cuando cambia el timeRange
+    fetchArtists(0);
   }, [timeRange]);
 
-  const fetchArtists = async () => {
+  const fetchArtists = async (offset: number = 0) => {
     try {
       setLoading(true);
-      const data = await spotifyService.getTopArtists(timeRange, 50);
+      const data = await spotifyService.getTopArtists(timeRange, ITEMS_PER_PAGE, offset);
       setArtists(data);
     } catch (error) {
       console.error('Error fetching artists:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const offset = newPage * ITEMS_PER_PAGE;
+    setCurrentPage(newPage);
+    fetchArtists(offset);
+    // Scroll al inicio de la página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const timeRangeLabels = {
@@ -55,20 +67,24 @@ export const TopArtists = () => {
                 <TrendingUp className="w-10 h-10 text-spotify-green" />
                 <span>Top Artistas</span>
               </h1>
-              <p className="text-gray-400">Total: {artists.total} artistas</p>
+              <p className="text-gray-400">
+                Total: {artists.total} artistas • Mostrando {artists.artists.length} de {artists.total}
+              </p>
             </div>
 
-            <div className="flex space-x-2 mt-4 md:mt-0">
-              {(Object.keys(timeRangeLabels) as TimeRange[]).map((range) => (
-                <Button
-                  key={range}
-                  onClick={() => setTimeRange(range)}
-                  variant={timeRange === range ? 'primary' : 'outline'}
-                  size="sm"
-                >
-                  {timeRangeLabels[range]}
-                </Button>
-              ))}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              <div className="flex space-x-2">
+                {(Object.keys(timeRangeLabels) as TimeRange[]).map((range) => (
+                  <Button
+                    key={range}
+                    onClick={() => setTimeRange(range)}
+                    variant={timeRange === range ? 'primary' : 'outline'}
+                    size="sm"
+                  >
+                    {timeRangeLabels[range]}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         </motion.div>
@@ -106,7 +122,7 @@ export const TopArtists = () => {
                       animate={{ scale: 1 }}
                       transition={{ delay: index * 0.05 + 0.3 }}
                     >
-                      #{index + 1}
+                      #{artists.offset + index + 1}
                     </motion.div>
                   </div>
 
@@ -141,6 +157,78 @@ export const TopArtists = () => {
             ))}
           </AnimatePresence>
         </div>
+
+        {/* Paginación */}
+        {artists && artists.total > ITEMS_PER_PAGE && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4"
+          >
+            <div className="text-gray-400 text-sm">
+              Página {currentPage + 1} de {Math.ceil(artists.total / ITEMS_PER_PAGE)}
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 0 || loading}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-1"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Anterior</span>
+              </Button>
+              
+              <div className="flex items-center space-x-1">
+                {(() => {
+                  const totalPages = Math.ceil(artists.total / ITEMS_PER_PAGE);
+                  const maxButtons = 5;
+                  const buttonsToShow = Math.min(maxButtons, totalPages);
+                  
+                  let startPage = 0;
+                  if (totalPages > maxButtons) {
+                    if (currentPage < 2) {
+                      startPage = 0;
+                    } else if (currentPage > totalPages - 3) {
+                      startPage = totalPages - maxButtons;
+                    } else {
+                      startPage = currentPage - 2;
+                    }
+                  }
+                  
+                  return Array.from({ length: buttonsToShow }, (_, i) => {
+                    const pageNum = startPage + i;
+                    return (
+                      <Button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        disabled={loading}
+                        variant={currentPage === pageNum ? 'primary' : 'outline'}
+                        size="sm"
+                        className="min-w-[40px]"
+                      >
+                        {pageNum + 1}
+                      </Button>
+                    );
+                  });
+                })()}
+              </div>
+              
+              <Button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= Math.ceil(artists.total / ITEMS_PER_PAGE) - 1 || loading}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-1"
+              >
+                <span>Siguiente</span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Modal for artist details */}
         <AnimatePresence>
