@@ -17,9 +17,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isChecking, setIsChecking] = useState(false);
 
   const checkAuth = async () => {
+    // Evitar llamadas concurrentes
+    if (isChecking) return;
+    
     try {
+      setIsChecking(true);
       setIsLoading(true);
       const userInfo = await spotifyService.getUserInfo();
       setUser(userInfo);
@@ -27,11 +32,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
     } finally {
       setIsLoading(false);
+      setIsChecking(false);
     }
   };
 
   useEffect(() => {
     checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = () => {
@@ -40,6 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
+    setIsLoading(false);
     // Limpiar cookies si es necesario
     document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';

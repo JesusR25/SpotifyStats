@@ -6,38 +6,61 @@ import { Card } from '../components/ui/Card';
 import { User, Music, TrendingUp, Users } from 'lucide-react';
 
 export const Dashboard = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, isLoading } = useAuth();
   const [stats, setStats] = useState({
     topArtists: 0,
     topTracks: 0,
   });
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
+    if (!user) {
+      setLoadingStats(false);
+      return;
+    }
+
+    let isMounted = true;
+
     const fetchStats = async () => {
       try {
+        setLoadingStats(true);
         const [artists, tracks] = await Promise.all([
           spotifyService.getTopArtists('medium_term', 1),
           spotifyService.getTopTracks('medium_term', 1),
         ]);
-        setStats({
-          topArtists: artists.total,
-          topTracks: tracks.total,
-        });
+        
+        if (isMounted) {
+          setStats({
+            topArtists: artists.total,
+            topTracks: tracks.total,
+          });
+        }
       } catch (error) {
         console.error('Error fetching stats:', error);
+      } finally {
+        if (isMounted) {
+          setLoadingStats(false);
+        }
       }
     };
 
-    if (user) {
-      fetchStats();
-    }
-  }, [user]);
+    fetchStats();
 
-  useEffect(() => {
-    refreshUser();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.userID]); // Usar userID como dependencia en lugar del objeto completo
 
-  if (!user) return null;
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-spotify-black via-spotify-gray to-spotify-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-spotify-green border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Cargando dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   const statCards = [
     {
