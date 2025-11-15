@@ -16,6 +16,7 @@ spotify_service = SpotifyService()
 async def get_user_info(request: Request):
     try:
         access_token,_ =get_tokens_from_cookies(request)
+        print(f"access_token: {access_token}")
         response = await spotify_service.get_user_info(access_token)
         return response
     except HTTPException:
