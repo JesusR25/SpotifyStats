@@ -11,11 +11,9 @@ export const Dashboard = () => {
     topArtists: 0,
     topTracks: 0,
   });
-  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     if (!user) {
-      setLoadingStats(false);
       return;
     }
 
@@ -23,7 +21,6 @@ export const Dashboard = () => {
 
     const fetchStats = async () => {
       try {
-        setLoadingStats(true);
         const [artists, tracks] = await Promise.all([
           spotifyService.getTopArtists('medium_term', 1),
           spotifyService.getTopTracks('medium_term', 1),
@@ -37,10 +34,6 @@ export const Dashboard = () => {
         }
       } catch (error) {
         console.error('Error fetching stats:', error);
-      } finally {
-        if (isMounted) {
-          setLoadingStats(false);
-        }
       }
     };
 

@@ -33,6 +33,7 @@ async def callback(code: str, state:str):
             raise HTTPException(status_code=500, detail="Lo sentimos, no se encontro el code o state en la URL.")
         auth_service = AuthService()
         response = auth_service.handle_spotify_callback(code=code, state=state)
+        print(f"response: {response}")
         return response
     except HTTPException:
         raise
