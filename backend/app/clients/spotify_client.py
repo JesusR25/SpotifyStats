@@ -40,3 +40,23 @@ class SpotifyClient:
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
         return response.json()
+
+
+    async def get_followed_artists(self, token: str, after: str = None, limit: int = 10):
+        url_final = f'{self.base_url}/me/following'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+        params = {
+            'type': 'artist',
+            'after': after,
+            'limit': limit
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url_final, headers=headers, params=params)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return response.json()

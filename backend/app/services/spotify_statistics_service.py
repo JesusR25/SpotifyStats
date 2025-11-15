@@ -1,5 +1,5 @@
 from app.clients.spotify_client import SpotifyClient
-from app.schemas.spotify import UserInfo, TopArtist, Artist, Image, TopTracks, Album, Track
+from app.schemas.spotify_statistics import UserInfo, TopArtist, Artist, Image, TopTracks, Album, Track, Cursors, ArtistsFollowByUser
 from fastapi import HTTPException
 
 class SpotifyService():
@@ -150,3 +150,45 @@ class SpotifyService():
 
         except Exception as e:
             print(f"Ocurrio un error al tratar de obtener el top de artistas: {e}")
+
+
+    async def get_followed_artists(self, token: str, after: str = None, limit: int = 10):
+        try:
+            data = await self.spotifyclient.get_followed_artists(after=after, limit=limit, token=token)
+            artists = data.get('artists', {})
+            cursors_data = artists.get('cursors')
+            cursor_response = Cursors(after=cursors_data['after'])
+            items = artists.get('items')
+            total = artists.get('total')
+
+            artist_list = []
+            for item in items:
+                images = item.get('images', [])
+                image_data = Image(**images[0]) if images else None
+
+                artist_item = Artist(
+                    name=item['name'],
+                    genres=item['genres'],
+                    uri=item['uri'],
+                    popularity=item['popularity'],
+                    followers=item['followers']['total'],
+                    image=image_data
+                )
+
+                artist_list.append(artist_item)
+
+
+
+            response = ArtistsFollowByUser(
+                Artist=artist_list,
+                limit=limit,
+                total=total,
+                cursors=cursor_response
+            )
+
+            return response
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"Ocurrio un error al tratar de obtener los artistas seguidos por el usuario: {e}")

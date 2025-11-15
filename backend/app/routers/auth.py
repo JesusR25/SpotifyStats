@@ -13,7 +13,7 @@ router = APIRouter(
 @router.get("/login")
 async def login():
     state = secrets.token_urlsafe(16) # Esto nos ayuda a gener un id random, necesario para la petición a Spotify
-    scope = "user-read-private user-read-email user-top-read user-read-playback-state user-modify-playback-state"
+    scope = "user-read-private user-read-email user-top-read user-read-playback-state user-modify-playback-state user-follow-read"
     params = {
         "response_type": "code",
         "client_id": settings.SPOTIFY_CLIENT_ID,

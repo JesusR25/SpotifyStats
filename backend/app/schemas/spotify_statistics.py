@@ -7,7 +7,6 @@ class Image(BaseModel):
     width: int
 
 class Cursors(BaseModel):
-    before: Optional[str]
     after: Optional[str]
 
 

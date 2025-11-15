@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
 from app.utils.cookies import get_tokens_from_cookies
-from app.schemas.spotify import TopArtist, TopTracks, UserInfo, ArtistsFollowByUser
-from app.services.spotify_service import SpotifyService
+from app.schemas.spotify_statistics import TopArtist, TopTracks, UserInfo, ArtistsFollowByUser
+from app.services.spotify_statistics_service import SpotifyService
 
 router = APIRouter(
     prefix="/spotify",
@@ -56,9 +56,11 @@ async def top_track_user(request: Request, time_range: str = "medium_term", limi
 
 # Ruta para Obtener artistas que sigue el usuario
 @router.get("/artist-follow-user", response_model=ArtistsFollowByUser)
-async def artist_folow_by_user(request: Request, type: str = "artist", after: str = None, limit: int = 10):
+async def artist_folow_by_user(request: Request, after: str = None, limit: int = 10):
     try:
         access_token,_ =get_tokens_from_cookies(request)
+        response = await spotify_service.get_followed_artists(after=after, limit=limit, token=access_token)
+        return response
     except HTTPException:
         raise
     except Exception as e:
