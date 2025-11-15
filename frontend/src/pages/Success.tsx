@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
@@ -12,9 +12,16 @@ export const Success = () => {
   const { refreshUser } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
+    // Prevenir múltiples ejecuciones
+    if (hasProcessed.current) return;
+    
     const handleCallback = async () => {
+      // Marcar como procesado inmediatamente
+      hasProcessed.current = true;
+      
       const code = searchParams.get('code');
       const state = searchParams.get('state');
       const error = searchParams.get('error');
@@ -51,11 +58,14 @@ export const Success = () => {
                        error?.message || 
                        'Ocurrió un error al vincular tu cuenta de Spotify. Por favor, intenta de nuevo.';
         setErrorMessage(message);
+        // Resetear el flag en caso de error para permitir reintento
+        hasProcessed.current = false;
       }
     };
 
     handleCallback();
-  }, [searchParams, navigate, refreshUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo ejecutar una vez al montar el componente
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-spotify-black via-spotify-gray to-spotify-black flex items-center justify-center px-4">
