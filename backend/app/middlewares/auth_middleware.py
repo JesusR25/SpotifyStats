@@ -1,7 +1,7 @@
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request, HTTPException
-from utils.cookies import get_tokens_from_cookies, set_tokens_in_cookies
-from services.auth_service import AuthService
+from app.utils.cookies import get_tokens_from_cookies, set_tokens_in_cookies
+from app.services.auth_service import AuthService
 
 class AuthMiddleware(BaseHTTPMiddleware):
 

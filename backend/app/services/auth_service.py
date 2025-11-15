@@ -1,8 +1,8 @@
-from core.config import settings
+from app.core.config import settings
 from fastapi.responses import RedirectResponse
 from fastapi import HTTPException
 from datetime import datetime, timedelta
-from utils.cookies import set_tokens_in_cookies
+from app.utils.cookies import set_tokens_in_cookies
 import requests
 import base64
 

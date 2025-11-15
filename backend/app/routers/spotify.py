@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
-from utils.cookies import get_tokens_from_cookies
-from schemas.spotify import TopArtist, TopTracks, UserInfo, ArtistsFollowByUser
-from services.spotify_service import SpotifyService
+from app.utils.cookies import get_tokens_from_cookies
+from app.schemas.spotify import TopArtist, TopTracks, UserInfo, ArtistsFollowByUser
+from app.services.spotify_service import SpotifyService
 
 router = APIRouter(
     prefix="/spotify",

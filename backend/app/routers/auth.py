@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
-from services.auth_service import AuthService
+from app.services.auth_service import AuthService
 from urllib.parse import urlencode
-from core.config import settings
+from app.core.config import settings
 import secrets
 
 router = APIRouter(

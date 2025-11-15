@@ -1,5 +1,5 @@
-from clients.spotify_client import SpotifyClient
-from schemas.spotify import UserInfo, TopArtist, Artist, Image, TopTracks, Album, Track
+from app.clients.spotify_client import SpotifyClient
+from app.schemas.spotify import UserInfo, TopArtist, Artist, Image, TopTracks, Album, Track
 from fastapi import HTTPException
 
 class SpotifyService():
