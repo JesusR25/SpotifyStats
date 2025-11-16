@@ -13,7 +13,11 @@ export const WrappedCard = ({ children, className = '', gradient = 'from-spotify
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       className={`relative rounded-3xl p-8 bg-gradient-to-br ${gradient} shadow-2xl overflow-hidden ${className}`}
-      style={{ width: '1080px', height: '1080px' }}
+      style={{ 
+        width: 'min(1080px, 90vw)', 
+        height: 'min(1080px, 90vh)',
+        aspectRatio: '1 / 1'
+      }}
     >
       {/* Patrón de fondo decorativo */}
       <div className="absolute inset-0 opacity-10">
