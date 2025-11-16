@@ -1,6 +1,6 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends
-from app.routers import spotify_statistics
+from app.routers import spotify_statistics, spotify_album
 from app.routers import auth
 
 
@@ -25,3 +25,4 @@ async def success_vinculation():
 
 app.include_router(auth.router, prefix="/api")
 app.include_router(spotify_statistics.router, prefix="/api")
+app.include_router(spotify_album.router,prefix="/api")

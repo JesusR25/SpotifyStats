@@ -11,5 +11,10 @@ export const API_ENDPOINTS = {
     TOP_TRACKS: `${API_BASE_URL}/api/spotify/top-tracks-user`,
     FOLLOWED_ARTISTS: `${API_BASE_URL}/api/spotify/artist-follow-user`,
   },
+  ALBUM: {
+    SAVED_BY_USER: `${API_BASE_URL}/api/album/saved_by_user`,
+    GET_ALBUM: (albumId: string) => `${API_BASE_URL}/api/album/${albumId}`,
+    GET_ALBUM_TRACKS: (albumId: string) => `${API_BASE_URL}/api/album/${albumId}/tracks`,
+  },
 };
 

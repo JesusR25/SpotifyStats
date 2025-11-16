@@ -65,3 +65,49 @@ export interface ArtistsFollowByUser {
   cursors: Cursors;
 }
 
+// Tipos para álbumes
+export interface AlbumArtist {
+  id: string;
+  name: string;
+}
+
+export interface AlbumDetail {
+  id_album: string;
+  name: string;
+  album_type: string;
+  total_tracks: number;
+  release_date: string;
+  image: Image;
+  genres: string[];
+  artist: AlbumArtist[];
+}
+
+export interface AlbumSaved {
+  added_at: string;
+  album: AlbumDetail;
+}
+
+export interface SavedAlbumsByUser {
+  AlbumsSaved: AlbumSaved[];
+  limit: number;
+  offset: number;
+  total: number;
+}
+
+export interface AlbumTrack {
+  trackID: string;
+  name: string;
+  duration_ms: number;
+  explicit: boolean;
+  artists: AlbumArtist[];
+  disc_number: number;
+  track_number: number;
+}
+
+export interface AlbumTracks {
+  tracks: AlbumTrack[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+

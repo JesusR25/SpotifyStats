@@ -1,6 +1,14 @@
 import axios from 'axios';
 import { API_ENDPOINTS } from '../config/api';
-import type { UserInfo, TopArtist, TopTracks, ArtistsFollowByUser } from '../types/spotify';
+import type { 
+  UserInfo, 
+  TopArtist, 
+  TopTracks, 
+  ArtistsFollowByUser,
+  SavedAlbumsByUser,
+  AlbumDetail,
+  AlbumTracks
+} from '../types/spotify';
 
 const api = axios.create({
   withCredentials: true,
@@ -56,6 +64,34 @@ export const spotifyService = {
   ): Promise<ArtistsFollowByUser> => {
     const response = await api.get<ArtistsFollowByUser>(API_ENDPOINTS.SPOTIFY.FOLLOWED_ARTISTS, {
       params: { limit, after, type: 'artist' },
+    });
+    return response.data;
+  },
+};
+
+export const albumService = {
+  getSavedAlbums: async (
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<SavedAlbumsByUser> => {
+    const response = await api.get<SavedAlbumsByUser>(API_ENDPOINTS.ALBUM.SAVED_BY_USER, {
+      params: { limit, offset },
+    });
+    return response.data;
+  },
+
+  getAlbum: async (albumId: string): Promise<AlbumDetail> => {
+    const response = await api.get<AlbumDetail>(API_ENDPOINTS.ALBUM.GET_ALBUM(albumId));
+    return response.data;
+  },
+
+  getAlbumTracks: async (
+    albumId: string,
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<AlbumTracks> => {
+    const response = await api.get<AlbumTracks>(API_ENDPOINTS.ALBUM.GET_ALBUM_TRACKS(albumId), {
+      params: { limit, offset },
     });
     return response.data;
   },

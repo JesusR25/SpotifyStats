@@ -5,6 +5,8 @@ import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
 import { TopArtists } from './pages/TopArtists';
 import { TopTracksPage } from './pages/TopTracks';
+import { SavedAlbums } from './pages/SavedAlbums';
+import { AlbumDetailPage } from './pages/AlbumDetail';
 import { Success } from './pages/Success';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 
@@ -47,6 +49,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <TopTracksPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/albums"
+        element={
+          <ProtectedRoute>
+            <SavedAlbums />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/album/:albumId"
+        element={
+          <ProtectedRoute>
+            <AlbumDetailPage />
           </ProtectedRoute>
         }
       />

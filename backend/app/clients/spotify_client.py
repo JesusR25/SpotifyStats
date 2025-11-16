@@ -60,3 +60,57 @@ class SpotifyClient:
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
         return response.json()
+
+
+    async def get_albums_save_user(self, limit:int, offset:int, token:str):
+        url_final = f'{self.base_url}/me/albums'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+        params = {
+            'limit': limit,
+            'offset': offset
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url_final, headers=headers, params=params)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return response.json()
+
+
+    async def get_album(self, albumID: str, token:str):
+        url_final = f'{self.base_url}/albums/{albumID}'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url_final, headers=headers)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return response.json()
+
+
+
+
+    async def get_tracks_album(self, albumID: str, offset: int, limit: int, token: str):
+        url_final = f'{self.base_url}/albums/{albumID}/tracks'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+        params = {
+            'limit': limit,
+            'offset': offset
+        }
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url_final, headers=headers, params=params)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return response.json()
