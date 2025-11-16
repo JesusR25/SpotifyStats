@@ -114,3 +114,27 @@ class SpotifyClient:
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
         return response.json()
+
+
+
+    async def get_recently_played(self, limit: int, after: str, before: str, token: str):
+        url = f'{self.base_url}/me/player/recently-played'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+        params = {
+            'limit': limit
+        }
+
+        if after:
+            params['after'] = after
+        elif before:
+            params['before'] = before
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers, params=params)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return response.json()
