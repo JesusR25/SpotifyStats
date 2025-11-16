@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Music, BarChart3, LogOut, Disc } from 'lucide-react';
+import { Music, BarChart3, LogOut, Disc, Sparkles } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -12,6 +12,7 @@ export const Navbar = () => {
     { path: '/top-artists', label: 'Top Artistas', icon: Music },
     { path: '/top-tracks', label: 'Top Canciones', icon: Music },
     { path: '/albums', label: 'Álbumes', icon: Disc },
+    { path: '/wrapped', label: 'Wrapped', icon: Sparkles },
   ];
 
   return (

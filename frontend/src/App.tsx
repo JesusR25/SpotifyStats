@@ -7,6 +7,7 @@ import { TopArtists } from './pages/TopArtists';
 import { TopTracksPage } from './pages/TopTracks';
 import { SavedAlbums } from './pages/SavedAlbums';
 import { AlbumDetailPage } from './pages/AlbumDetail';
+import { Wrapped } from './pages/Wrapped';
 import { Success } from './pages/Success';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 
@@ -65,6 +66,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AlbumDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/wrapped"
+        element={
+          <ProtectedRoute>
+            <Wrapped />
           </ProtectedRoute>
         }
       />
