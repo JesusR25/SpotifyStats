@@ -22,6 +22,7 @@ class Album(BaseModel):
     album_type: str
     release_date: str
     cover: Optional[Image]
+    artists: List[Artist]
 
 
 class Track(BaseModel):
@@ -41,5 +42,4 @@ class TrackPlayed(BaseModel):
 class TracksRecentlyPlayed(BaseModel):
     tracks: List[TrackPlayed]
     limit: int
-    total: int
     cursors: Cursors
