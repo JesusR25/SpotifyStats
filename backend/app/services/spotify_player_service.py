@@ -102,3 +102,23 @@ class PlayerService():
             raise
         except Exception as e:
             print(f"Ocurrio un error al tratar de obtener el contenido reproducido recientemente: {e} ")
+
+
+
+    async def play_resume_playback(self, device_id: str, context_uri: str, position: int, position_ms: int, token: str):
+        try:
+            data = await self.spotifyclient.start_resume_playback(
+                device_id=device_id, 
+                context_uri=context_uri,
+                position=position, 
+                position_ms=position_ms,
+                token=token
+            )
+            print(data)
+            return 200
+
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"Ocurrio un error al tratar de obtener el contenido reproducido recientemente: {e} ")

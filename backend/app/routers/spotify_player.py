@@ -32,4 +32,25 @@ async def pause_playback(request: Request, device_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Ocurrio un error a la hora de obtener las ultimas canciones reproducidas: {e}")
+        print(f"Ocurrio un error al tratar de pausar la musica: {e}")
+
+
+@router.put("/{device_id}/play_resume_playback")
+async def play_resume_playback(request: Request, device_id: str, context_uri: str = None, position: int = None, position_ms: int = None, token: str = None):
+    try:
+        access_token,_ =get_tokens_from_cookies(request)
+        response = await player_service.play_resume_playback(
+            device_id=device_id,
+            context_uri=context_uri,
+            position=position,
+            position_ms=position_ms,
+            token=access_token
+        )
+        return response
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ocurrio un error al tratar de reproducir la musica: {e}")
+
+
+# Proximo endpoint: Obtener estado actual del reproductor.

@@ -156,3 +156,49 @@ class SpotifyClient:
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
         return response.json()
+
+
+
+    async def start_resume_playback(self, device_id: str, context_uri: str, position: int, position_ms: int, token: str):
+        url = f'{self.base_url}/me/player/play'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+        params = {
+            'device_id': device_id
+        }
+
+        body = {}
+        if context_uri:
+            body['context_uri'] = context_uri
+        if position:
+            body['position_ms'] = position_ms
+        if position:
+            body['offset'] = {}
+            body['offset']['position'] = position
+
+
+
+        async with httpx.AsyncClient() as client:
+            response = await client.put(url, headers=headers, params=params, data=body)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return response.json()
+
+
+
+    async def get_playback_state(self, token: str):
+        url = f'{self.base_url}/v1/me/player'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.put(url, headers=headers)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+        return response.json()
