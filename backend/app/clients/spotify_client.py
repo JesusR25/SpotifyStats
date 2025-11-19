@@ -190,15 +190,16 @@ class SpotifyClient:
 
 
     async def get_playback_state(self, token: str):
-        url = f'{self.base_url}/v1/me/player'
+        url = f'{self.base_url}/me/player'
         headers = {
             'Authorization': f'Bearer {token}'
         }
 
         async with httpx.AsyncClient() as client:
-            response = await client.put(url, headers=headers)
+            response = await client.get(url, headers=headers)
 
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
         return response.json()
+    

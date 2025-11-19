@@ -54,3 +54,13 @@ async def play_resume_playback(request: Request, device_id: str, context_uri: st
 
 
 # Proximo endpoint: Obtener estado actual del reproductor.
+@router.get("/playback_state")
+async def playback_state(request: Request):
+    try:
+        access_token,_ =get_tokens_from_cookies(request)
+        response = await player_service.playback_state(token=access_token)
+        return response
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ocurrio un error al tratar de reproducir la musica: {e}")
