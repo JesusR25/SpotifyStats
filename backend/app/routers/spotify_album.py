@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request, HTTPException
-from app.schemas.spotify_album import SavedAlbumsByUser, Album, AlbumTracks
+from app.schemas.library import SavedAlbumsByUser, Album, AlbumTracks
+#from app.schemas.spotify_album import SavedAlbumsByUser, Album, AlbumTracks
 from app.services.spotify_album_service import AlbumService
 from app.utils.cookies import get_tokens_from_cookies
 

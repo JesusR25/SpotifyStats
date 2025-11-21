@@ -35,6 +35,7 @@ class SpotifyService():
             print(f"Ocurrio un error al tratar de obtener la información del usuario: {e}")
 
 
+
     async def get_top_artist(self,time_range: str, limit: int, offset: int, token: str):
         try:
             range_valids = ["long_term", "medium_term", "short_term"]
