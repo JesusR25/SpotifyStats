@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request, HTTPException
-from app.schemas.spotify_player import TracksRecentlyPlayed
+#from app.schemas.spotify_player import TracksRecentlyPlayed
+from app.schemas.player import TracksRecentlyPlayed
 from app.services.spotify_player_service import PlayerService
 from app.utils.cookies import get_tokens_from_cookies
 
@@ -9,6 +10,22 @@ router = APIRouter(
 )
 
 player_service = PlayerService()
+
+
+
+# Proximo endpoint: Obtener estado actual del reproductor.
+@router.get("/playback_state")
+async def playback_state(request: Request):
+    try:
+        access_token,_ =get_tokens_from_cookies(request)
+        response = await player_service.playback_state(token=access_token)
+        return response
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ocurrio un error al tratar de reproducir la musica: {e}")
+
+
 
 @router.get('/recently_played', response_model=TracksRecentlyPlayed)
 async def get_recently_played(request: Request, limit: int = 10, after: int = None, before: int = None):
@@ -52,15 +69,3 @@ async def play_resume_playback(request: Request, device_id: str, context_uri: st
     except Exception as e:
         print(f"Ocurrio un error al tratar de reproducir la musica: {e}")
 
-
-# Proximo endpoint: Obtener estado actual del reproductor.
-@router.get("/playback_state")
-async def playback_state(request: Request):
-    try:
-        access_token,_ =get_tokens_from_cookies(request)
-        response = await player_service.playback_state(token=access_token)
-        return response
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Ocurrio un error al tratar de reproducir la musica: {e}")

@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import List
 from .base.track import Track
 from .base.album import Album
+from .base.artist import Artist
+from .base.cursors import Cursors
 
 
 class AlbumTracks(BaseModel):
@@ -21,3 +23,10 @@ class SavedAlbumsByUser(BaseModel):
     limit: int
     offset: int
     total: int
+
+
+class ArtistsFollowByUser(BaseModel):
+    Artist: List[Artist]
+    limit: int
+    total: int
+    cursors: Cursors

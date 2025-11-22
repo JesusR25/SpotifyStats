@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Request, HTTPException
 from app.utils.cookies import get_tokens_from_cookies
-from app.schemas.spotify_statistics import TopArtist, TopTracks, UserInfo, ArtistsFollowByUser
+#from app.schemas.spotify_statistics import TopArtist, TopTracks, UserInfo, ArtistsFollowByUser
+from app.schemas.base.user import User
+from app.schemas.library import ArtistsFollowByUser
+from app.schemas.top import TopArtist, TopTracks
 from app.services.spotify_statistics_service import SpotifyService
 
 router = APIRouter(
@@ -12,7 +15,7 @@ spotify_service = SpotifyService()
 
 
 
-@router.get("/me", response_model=UserInfo)
+@router.get("/me", response_model=User)
 async def get_user_info(request: Request):
     try:
         access_token,_ =get_tokens_from_cookies(request)

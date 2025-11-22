@@ -1,6 +1,7 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from .artist import Artist
+from .album import Album
 
 
 
@@ -12,3 +13,4 @@ class Track(BaseModel):
     artists: List[Artist]
     disc_number: int
     track_number: int
+    album: Optional[Album] = None

@@ -1,5 +1,10 @@
 from app.clients.spotify_client import SpotifyClient
-from app.schemas.spotify_statistics import UserInfo, TopArtist, Artist, Image, TopTracks, Album, Track, Cursors, ArtistsFollowByUser
+from app.utils.parsers import parse_user, parse_artist, parse_album, parse_tracks
+from app.schemas.base.cursors import Cursors
+from app.schemas.top import TopArtist, TopTracks
+from app.schemas.library import ArtistsFollowByUser
+
+#from app.schemas.spotify_statistics import UserInfo, TopArtist, Artist, Image, TopTracks, Album, Track, Cursors, ArtistsFollowByUser
 from fastapi import HTTPException
 
 class SpotifyService():
@@ -8,22 +13,11 @@ class SpotifyService():
         
 
 
+
     async def get_user_info(self, token: str):
         try:
             user_data = await self.spotifyclient.get_user_info(token=token)
-            images = user_data.get('images', [])
-            image_data = Image(**images[0]) if images else None
-
-            user_info = UserInfo(
-                userID=user_data['id'],
-                email=user_data['email'],
-                display_name=user_data['display_name'],
-                country=user_data['country'],
-                followers=user_data['followers']['total'],
-                product=user_data['product'],
-                images= image_data
-            )
-
+            user_info = parse_user(user_data)
 
             return user_info
 
@@ -54,17 +48,7 @@ class SpotifyService():
             artist_list = []
 
             for artist in artist_in_data:
-                images = artist.get('images', [])
-                image_data = Image(**images[0]) if images else None
-
-                artist_data = Artist(
-                    name = artist['name'],
-                    genres=artist['genres'],
-                    uri=artist['uri'],
-                    popularity=artist['popularity'],
-                    followers = artist["followers"]["total"],
-                    image=image_data
-                )
+                artist_data = parse_artist(artist)
                 artist_list.append(artist_data)
 
 
@@ -106,33 +90,12 @@ class SpotifyService():
 
             for track in tracks_in_data:
                 album = track['album']
-                images = album.get('images', [])
-                image_data = Image(**images[0]) if images else None
-                artists = album.get('artists')
-                artists_name = []
-
-                for artist in artists:
-                    name = artist['name']
-                    artists_name.append(name)
+                album_data = parse_album(album)
+                track_data = parse_tracks(track)
+                track_data.album = album_data
 
 
-                album_model = Album(
-                    name=album['name'],
-                    album_type=album['album_type'],
-                    release_date=album['release_date'],
-                    cover=image_data
-                )
-
-                track_model = Track(
-                    name=track['name'],
-                    popularity=track['popularity'],
-                    artist=artists_name,
-                    duration=track['duration_ms'],
-                    explicit=track['explicit'],
-                    album=album_model
-                )
-
-                tracks_list.append(track_model)
+                tracks_list.append(track_data)
 
 
             limit_data = data.get('limit', limit)
@@ -153,6 +116,7 @@ class SpotifyService():
             print(f"Ocurrio un error al tratar de obtener el top de artistas: {e}")
 
 
+
     async def get_followed_artists(self, token: str, after: str = None, limit: int = 10):
         try:
             data = await self.spotifyclient.get_followed_artists(after=after, limit=limit, token=token)
@@ -164,19 +128,8 @@ class SpotifyService():
 
             artist_list = []
             for item in items:
-                images = item.get('images', [])
-                image_data = Image(**images[0]) if images else None
-
-                artist_item = Artist(
-                    name=item['name'],
-                    genres=item['genres'],
-                    uri=item['uri'],
-                    popularity=item['popularity'],
-                    followers=item['followers']['total'],
-                    image=image_data
-                )
-
-                artist_list.append(artist_item)
+                artist_data = parse_artist(item)
+                artist_list.append(artist_data)
 
 
 
