@@ -83,9 +83,9 @@ export const SavedAlbums = () => {
               >
                 <Card className="cursor-pointer h-full">
                   <div className="relative mb-4">
-                    {albumSaved.album.image ? (
+                    {albumSaved.album.cover ? (
                       <motion.img
-                        src={albumSaved.album.image.url}
+                        src={albumSaved.album.cover.url}
                         alt={albumSaved.album.name}
                         className="w-full aspect-square object-cover rounded-xl"
                         whileHover={{ scale: 1.1 }}

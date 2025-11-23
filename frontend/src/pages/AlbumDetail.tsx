@@ -87,12 +87,12 @@ export const AlbumDetailPage = () => {
         >
           <Card className="bg-gradient-to-r from-spotify-green/20 to-purple-500/20 border border-spotify-green/30">
             <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-              {album.image && (
+              {album.cover && (
                 <motion.img
                   initial={{ scale: 0.9 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  src={album.image.url}
+                  src={album.cover.url}
                   alt={album.name}
                   className="w-64 h-64 md:w-80 md:h-80 rounded-2xl shadow-2xl"
                 />

@@ -77,7 +77,7 @@ export interface AlbumDetail {
   album_type: string;
   total_tracks: number;
   release_date: string;
-  image: Image;
+  cover: Image;
   genres: string[];
   artist: AlbumArtist[];
 }
@@ -109,5 +109,50 @@ export interface AlbumTracks {
   total: number;
   offset: number;
   limit: number;
+}
+
+// Tipos para Player
+export interface Device {
+  deviceID: string;
+  is_active: boolean;
+  is_private_session: boolean;
+  is_restricted: boolean;
+  name: string;
+  deviceType: string;
+  volume_percent: number;
+  supports_volume: boolean;
+}
+
+export interface PlayerTrack {
+  trackID: string;
+  name: string;
+  duration_ms: number;
+  explicit: boolean;
+  artists: AlbumArtist[];
+  disc_number: number;
+  track_number: number;
+  album?: AlbumDetail;
+}
+
+export interface PlaybackState {
+  device: Device;
+  track: PlayerTrack;
+  repeat_state: string;
+  shuffle_state: boolean;
+  progress_ms: number;
+  is_playing: boolean;
+  currently_playing_type: string;
+  actions?: {
+    interrupting_playback?: boolean;
+    pausing?: boolean;
+    resuming?: boolean;
+    seeking?: boolean;
+    skipping_next?: boolean;
+    skipping_prev?: boolean;
+    toggling_repeat_context?: boolean;
+    toggling_shuffle?: boolean;
+    toggling_repeat_track?: boolean;
+    transferring_playback?: boolean;
+  };
 }
 

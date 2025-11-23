@@ -16,5 +16,13 @@ export const API_ENDPOINTS = {
     GET_ALBUM: (albumId: string) => `${API_BASE_URL}/api/album/${albumId}`,
     GET_ALBUM_TRACKS: (albumId: string) => `${API_BASE_URL}/api/album/${albumId}/tracks`,
   },
+  PLAYER: {
+    PLAYBACK_STATE: `${API_BASE_URL}/api/player/playback_state`,
+    PAUSE: (deviceId: string) => `${API_BASE_URL}/api/player/${deviceId}/pause_playback`,
+    PLAY: (deviceId: string) => `${API_BASE_URL}/api/player/${deviceId}/play_resume_playback`,
+    NEXT: (deviceId: string) => `${API_BASE_URL}/api/player/${deviceId}/skip_to_next`,
+    PREVIOUS: (deviceId: string) => `${API_BASE_URL}/api/player/${deviceId}/skip_to_previous`,
+    RECENTLY_PLAYED: `${API_BASE_URL}/api/player/recently_played`,
+  },
 };
 

@@ -7,7 +7,8 @@ import type {
   ArtistsFollowByUser,
   SavedAlbumsByUser,
   AlbumDetail,
-  AlbumTracks
+  AlbumTracks,
+  PlaybackState
 } from '../types/spotify';
 
 const api = axios.create({
@@ -94,6 +95,45 @@ export const albumService = {
       params: { limit, offset },
     });
     return response.data;
+  },
+};
+
+export const playerService = {
+  getPlaybackState: async (): Promise<PlaybackState | null> => {
+    try {
+      const response = await api.get<PlaybackState>(API_ENDPOINTS.PLAYER.PLAYBACK_STATE);
+      return response.data;
+    } catch (error: any) {
+      if (error?.response?.status === 204 || error?.response?.status === 404) {
+        return null; // No hay nada reproduciéndose
+      }
+      throw error;
+    }
+  },
+
+  pausePlayback: async (deviceId: string): Promise<void> => {
+    await api.put(API_ENDPOINTS.PLAYER.PAUSE(deviceId));
+  },
+
+  playResumePlayback: async (
+    deviceId: string,
+    contextUri?: string,
+    position?: number,
+    positionMs?: number
+  ): Promise<void> => {
+    await api.put(API_ENDPOINTS.PLAYER.PLAY(deviceId), {
+      context_uri: contextUri,
+      position,
+      position_ms: positionMs,
+    });
+  },
+
+  skipToNext: async (deviceId: string): Promise<void> => {
+    await api.get(API_ENDPOINTS.PLAYER.NEXT(deviceId));
+  },
+
+  skipToPrevious: async (deviceId: string): Promise<void> => {
+    await api.get(API_ENDPOINTS.PLAYER.PREVIOUS(deviceId));
   },
 };
 
