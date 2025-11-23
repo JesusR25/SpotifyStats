@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { playerService } from '../services/api';
 import { Card } from '../components/ui/Card';
@@ -21,26 +21,34 @@ export const PlayerPage = () => {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const isFirstLoad = useRef(true);
 
   useEffect(() => {
-    fetchPlaybackState();
-    // Actualizar cada 5 segundos
-    const interval = setInterval(fetchPlaybackState, 5000);
+    fetchPlaybackState(true); // Primera carga con loading
+    // Actualizar cada 5 segundos sin mostrar loading
+    const interval = setInterval(() => {
+      fetchPlaybackState(false);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
   const fetchPlaybackState = async (showLoading = false) => {
     try {
-      // Solo mostrar loading en la primera carga o si se solicita explícitamente
-      if (playbackState === null || showLoading) {
-        if (playbackState === null) {
-          setLoading(true);
-        } else {
-          setIsRefreshing(true);
-        }
+      // Solo mostrar loading en la primera carga
+      if (isFirstLoad.current && showLoading) {
+        setLoading(true);
+      } else if (showLoading && playbackState !== null) {
+        // Si hay estado previo y se solicita explícitamente, mostrar indicador sutil
+        setIsRefreshing(true);
       }
+      // Si no se solicita loading, no mostrar nada (actualización silenciosa)
       
       const state = await playerService.getPlaybackState();
+      
+      // Marcar que ya no es la primera carga
+      if (isFirstLoad.current) {
+        isFirstLoad.current = false;
+      }
       
       // Actualizar suavemente sin recargar todo
       if (state) {
@@ -66,6 +74,11 @@ export const PlayerPage = () => {
     } catch (error) {
       console.error('Error fetching playback state:', error);
       // No limpiar el estado en caso de error, mantener lo que había
+      // Solo limpiar si es la primera carga
+      if (isFirstLoad.current) {
+        setPlaybackState(null);
+        isFirstLoad.current = false;
+      }
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -100,7 +113,7 @@ export const PlayerPage = () => {
       setIsActionLoading(true);
       await playerService.skipToNext(playbackState.device.deviceID);
       setTimeout(() => {
-        fetchPlaybackState();
+        fetchPlaybackState(false); // No mostrar loading en actualización
       }, 500);
     } catch (error) {
       console.error('Error skipping to next:', error);
@@ -116,7 +129,7 @@ export const PlayerPage = () => {
       setIsActionLoading(true);
       await playerService.skipToPrevious(playbackState.device.deviceID);
       setTimeout(() => {
-        fetchPlaybackState();
+        fetchPlaybackState(false); // No mostrar loading en actualización
       }, 500);
     } catch (error) {
       console.error('Error skipping to previous:', error);
@@ -136,7 +149,10 @@ export const PlayerPage = () => {
     return percentage;
   };
 
-  if (loading) return <LoadingSpinner />;
+  // Solo mostrar loading en la primera carga, no durante actualizaciones
+  if (loading && playbackState === null) {
+    return <LoadingSpinner />;
+  }
 
   if (!playbackState) {
     return (
@@ -149,7 +165,7 @@ export const PlayerPage = () => {
               <p className="text-gray-400 mb-6">
                 Reproduce algo en Spotify para ver la información aquí
               </p>
-              <Button onClick={fetchPlaybackState} variant="primary">
+              <Button onClick={() => fetchPlaybackState(true)} variant="primary">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Actualizar
               </Button>
