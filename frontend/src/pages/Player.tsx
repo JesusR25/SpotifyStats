@@ -29,16 +29,43 @@ export const PlayerPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const fetchPlaybackState = async () => {
+  const fetchPlaybackState = async (showLoading = false) => {
     try {
-      if (!isRefreshing) {
-        setLoading(true);
+      // Solo mostrar loading en la primera carga o si se solicita explícitamente
+      if (playbackState === null || showLoading) {
+        if (playbackState === null) {
+          setLoading(true);
+        } else {
+          setIsRefreshing(true);
+        }
       }
+      
       const state = await playerService.getPlaybackState();
-      setPlaybackState(state);
+      
+      // Actualizar suavemente sin recargar todo
+      if (state) {
+        setPlaybackState(prevState => {
+          // Si la canción es la misma, solo actualizar el progreso y estado
+          if (prevState && prevState.track.trackID === state.track.trackID) {
+            return {
+              ...state,
+              // Mantener la referencia del álbum completo para evitar recarga de imagen
+              track: {
+                ...state.track,
+                album: prevState.track.album || state.track.album,
+              },
+            };
+          }
+          // Si cambió la canción, actualizar todo pero con transición suave
+          return state;
+        });
+      } else {
+        // Solo limpiar si realmente no hay nada reproduciéndose
+        setPlaybackState(null);
+      }
     } catch (error) {
       console.error('Error fetching playback state:', error);
-      setPlaybackState(null);
+      // No limpiar el estado en caso de error, mantener lo que había
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -55,9 +82,9 @@ export const PlayerPage = () => {
       } else {
         await playerService.playResumePlayback(playbackState.device.deviceID);
       }
-      // Esperar un momento y refrescar
+      // Esperar un momento y refrescar sin mostrar loading
       setTimeout(() => {
-        fetchPlaybackState();
+        fetchPlaybackState(false);
       }, 500);
     } catch (error) {
       console.error('Error toggling playback:', error);
@@ -149,26 +176,37 @@ export const PlayerPage = () => {
               <Music className="w-10 h-10 text-spotify-green" />
               <span>Reproductor</span>
             </h1>
-            <Button
-              onClick={() => {
-                setIsRefreshing(true);
-                fetchPlaybackState();
-              }}
-              variant="outline"
-              size="sm"
-              disabled={isRefreshing}
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Actualizar
-            </Button>
+            <div className="flex items-center space-x-3">
+              {isRefreshing && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm text-gray-400"
+                >
+                  Actualizando...
+                </motion.div>
+              )}
+              <Button
+                onClick={() => {
+                  fetchPlaybackState(true);
+                }}
+                variant="outline"
+                size="sm"
+                disabled={isRefreshing}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Actualizar
+              </Button>
+            </div>
           </div>
         </motion.div>
 
         {/* Información del dispositivo */}
         <motion.div
+          key={device.deviceID}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ duration: 0.3 }}
           className="mb-6"
         >
           <Card className="bg-gradient-to-r from-spotify-green/20 to-blue-500/20 border border-spotify-green/30">
@@ -178,52 +216,88 @@ export const PlayerPage = () => {
                   <Smartphone className="w-6 h-6 text-spotify-green" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">{device.name}</h3>
-                  <p className="text-gray-400 text-sm">
+                  <motion.h3
+                    key={`device-name-${device.deviceID}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-xl font-bold text-white"
+                  >
+                    {device.name}
+                  </motion.h3>
+                  <motion.p
+                    key={`device-info-${device.deviceID}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2, delay: 0.05 }}
+                    className="text-gray-400 text-sm"
+                  >
                     {device.deviceType} • {device.is_active ? 'Activo' : 'Inactivo'}
-                  </p>
+                  </motion.p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2 text-gray-400">
+              <motion.div
+                key={`volume-${device.volume_percent}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center space-x-2 text-gray-400"
+              >
                 <Volume2 className="w-5 h-5" />
                 <span className="text-sm">{device.volume_percent}%</span>
-              </div>
+              </motion.div>
             </div>
           </Card>
         </motion.div>
 
         {/* Información de la canción */}
         <motion.div
+          key={track.trackID}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ duration: 0.3 }}
           className="mb-6"
         >
           <Card className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
             <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
               {track.album?.cover && (
-                <motion.img
-                  animate={{ rotate: is_playing ? 360 : 0 }}
-                  transition={{ duration: 20, repeat: is_playing ? Infinity : 0, ease: 'linear' }}
-                  src={track.album.cover.url}
-                  alt={track.album.name}
-                  className="w-48 h-48 md:w-64 md:h-64 rounded-2xl shadow-2xl"
-                />
+                <div className="relative w-48 h-48 md:w-64 md:h-64">
+                  <motion.img
+                    key={`img-${track.trackID}`}
+                    animate={{ rotate: is_playing ? 360 : 0 }}
+                    transition={{ duration: 20, repeat: is_playing ? Infinity : 0, ease: 'linear' }}
+                    src={track.album.cover.url}
+                    alt={track.album.name}
+                    className="w-full h-full rounded-2xl shadow-2xl object-cover"
+                    style={{ 
+                      imageRendering: 'auto',
+                      willChange: 'transform'
+                    }}
+                    loading="eager"
+                    onError={() => {
+                      // Si falla la imagen, intentar mantener la anterior
+                      console.log('Error loading image');
+                    }}
+                  />
+                </div>
               )}
               
               <div className="flex-1 text-center md:text-left">
                 <motion.h2
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  key={`title-${track.trackID}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
                   className="text-3xl md:text-4xl font-bold text-white mb-2"
                 >
                   {track.name}
                 </motion.h2>
                 
                 <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.1 }}
+                  key={`artist-${track.trackID}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.05 }}
                   className="text-xl md:text-2xl text-gray-300 mb-4"
                 >
                   {track.artists.map(a => a.name).join(', ')}
@@ -231,9 +305,10 @@ export const PlayerPage = () => {
 
                 {track.album && (
                   <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
+                    key={`album-${track.trackID}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: 0.1 }}
                     className="text-gray-400 mb-4"
                   >
                     {track.album.name}
@@ -249,9 +324,8 @@ export const PlayerPage = () => {
                   <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
                     <motion.div
                       className="bg-spotify-green h-2 rounded-full"
-                      initial={{ width: 0 }}
                       animate={{ width: `${progressPercentage}%` }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 1, ease: 'linear' }}
                     />
                   </div>
                 </div>
