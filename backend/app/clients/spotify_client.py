@@ -203,3 +203,38 @@ class SpotifyClient:
 
         return response.json()
     
+
+
+    async def skip_to_next(self, token, device_id):
+        url = f'{self.base_url}/me/player/next'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+
+        params = {
+            'device_id': device_id
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, headers=headers, params=params)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+
+
+    async def skip_to_previous(self, token, device_id):
+        url = f'{self.base_url}/me/player/previous'
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+
+        params = {
+            'device_id': device_id
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, headers=headers, params=params)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Response
 #from app.schemas.spotify_player import TracksRecentlyPlayed
 from app.schemas.player import TracksRecentlyPlayed
 from app.services.spotify_player_service import PlayerService
@@ -52,6 +52,7 @@ async def pause_playback(request: Request, device_id: str):
         print(f"Ocurrio un error al tratar de pausar la musica: {e}")
 
 
+
 @router.put("/{device_id}/play_resume_playback")
 async def play_resume_playback(request: Request, device_id: str, context_uri: str = None, position: int = None, position_ms: int = None, token: str = None):
     try:
@@ -69,3 +70,30 @@ async def play_resume_playback(request: Request, device_id: str, context_uri: st
     except Exception as e:
         print(f"Ocurrio un error al tratar de reproducir la musica: {e}")
 
+
+
+@router.get("/{device_id}/skip_to_next")
+async def skip_to_next(request: Request, device_id: str):
+    try:
+        access_token,_ =get_tokens_from_cookies(request)
+        response = await player_service.skip_to_next(device_id=device_id, token=access_token)
+        return Response(status_code=200)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ocurrio un error al tratar de adelanta a la siguiente canción: {e}")
+
+
+
+@router.get("/{device_id}/skip_to_previous")
+async def skip_to_previous(request: Request, device_id: str):
+    try:
+        access_token,_ =get_tokens_from_cookies(request)
+        response = await player_service.skip_to_previous(device_id=device_id, token=access_token)
+        return Response(status_code=200)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ocurrio un error al tratar de devolver a la anterior canción: {e}")
+
+        

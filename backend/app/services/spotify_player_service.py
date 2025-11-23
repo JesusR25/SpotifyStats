@@ -134,3 +134,29 @@ class PlayerService():
             raise
         except Exception as e:
             print(f"Ocurrio un error al tratar de obtener el estado del reproductor: {e} ")
+
+
+
+
+    async def skip_to_next(self, device_id: str, token: str):
+        try:
+            await self.spotifyclient.skip_to_next(device_id=device_id, token=token)
+            return 200
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"Ocurrio un error al tratar de pasar a la siguiente canción: {e} ")
+
+
+
+    async def skip_to_previous(self, device_id: str, token: str):
+        try:
+            await self.spotifyclient.skip_to_previous(device_id=device_id, token=token)
+            return 200
+
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"Ocurrio un error al tratar de ir a la canción anterior: {e} ")
